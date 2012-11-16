@@ -1,0 +1,41 @@
+Metadata-Version: 1.1
+Name: bottle-oracle
+Version: 0.0.1
+Summary: cx_Oracle integration for Bottle
+Home-page: https://github.com/bormotov/bottle-oracle
+Author: Vladimir Bormotov
+Author-email: bormotov@gmail.com
+License: BSD License
+Description: 
+        Bottle-oracle is a plugin that integrates cx_Oracle with your Bottle
+        application. 
+        
+        To automatically detect routes that need a database connection, the plugin
+        searches for route callbacks that require a `oradb` keyword argument
+        (configurable) and skips routes that do not.
+        
+        Usage Example::
+        
+            import bottle
+            from bottle.ext import oracle
+        
+            app = bottle.Bottle()
+            plugin = oracle.Plugin(uri='user/password@host:sid')
+            app.install(plugin)
+        
+            @app.route('/show/<item>')
+            def show(item, oradb):
+                row = db.execute('SELECT * from items where name=?', item).fetchone()
+                if row:
+                    return template('showitem', page=row)
+                return HTTPError(404, "Page not found")
+        
+Platform: any
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Requires: bottle (>=0.10)
