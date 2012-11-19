@@ -32,23 +32,41 @@ class OraclePlugin(object):
         """return cx_Oracle Connection() instance
         """
         if self.oracle_db is None:
-            self.oracle_db = cx_Oracle.connect(self.user, self.password, self.dsn)
+            if self.mode:
+                self.oracle_db = cx_Oracle.connect(self.user, self.password, self.dsn, self.mode)
+            else:
+                self.oracle_db = cx_Oracle.connect(self.user, self.password, self.dsn)
         return self.oracle_db
 
     def __init__(self, uri, keyword='oradb'):
         """uri format:
-        user/password@host:port:sid
-        user/password@host:sid (port = '1521')
+        user/password@host:port:sid[ as sysdba]
+        user/password@host:sid[ as ssydba] (port = '1521')
         """
-        user_pass, sid = uri.split('@')
+        self.keyword = keyword
+        uuri, tmode = uri.strip().split(' as ')
+        if tmode.lower() == 'sysdba':
+            self.mode = cx_Oracle.SYSDBA
+        elif tmode.lower() == 'sysoper':
+            self.mode = cx_Oracle.SYSOPER
+        else:
+            self.mode = None
+        user_pass, sid = uuri.split('@')
         self.user, self.password = user_pass.split('/')
         lsid = sid.split(':')
         if len(lsid) == 2:
-            self.dsn = cx_Oracle.makedsn(lsid[0], 1521, lsid[1])
+            self.host = lsid[0]
+            self.port = '1521'
+            self.sid = lsid[1]
         elif len(lsid) == 3:
-            self.dsn = cx_Oracle.makedsn(lsid[0], lsid[1], lsid[2])
+            self.host = lsid[0]
+            self.port = lsid[1]
+            self.sid = lsid[2]
         else:
             raise ValueError('URI format error: to many components in SID: ' + sid)
+
+        self.dsn = cx_Oracle.makedsn(self.host, self.port, self.sid)
+
 
     def __repr__(self):
         return "<%s user='%s' password='%s' dsn='%s'>" % \
