@@ -17,15 +17,15 @@ Description:
         Usage Example::
         
             import bottle
-            from bottle.ext import oracle
+            from bottle_oracle import OraclePlugin
         
             app = bottle.Bottle()
-            plugin = oracle.Plugin(uri='user/password@host:sid')
+            plugin = OraclePlugin(uri='user/password@host:sid')
             app.install(plugin)
         
             @app.route('/show/<item>')
             def show(item, oradb):
-                row = db.execute('SELECT * from items where name=?', item).fetchone()
+                row = oradb.cursor().execute('SELECT * from items where name=?', item).fetchone()
                 if row:
                     return template('showitem', page=row)
                 return HTTPError(404, "Page not found")
@@ -39,3 +39,4 @@ Classifier: Programming Language :: Python
 Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
 Classifier: Topic :: Software Development :: Libraries :: Python Modules
 Requires: bottle (>=0.10)
+Requires: cx_Oracle

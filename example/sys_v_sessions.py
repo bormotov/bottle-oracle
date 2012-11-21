@@ -1,7 +1,7 @@
 #! python
 
+import sys
 import bottle
-import cx_Oracle
 from bottle_oracle import OraclePlugin
 
 USER = 'sys'
@@ -11,10 +11,6 @@ SID = 'demo'
 
 URI = '%s/%s@%s:%s as sysdba' % (USER, PASS, HOST, SID)
 
-app = bottle.Bottle()
-plugin = OraclePlugin(URI)
-app.install(plugin)
-
 Q_FIELDS = ['sid', 'username', 'serial#', 'status', 'schemaname', 'machine', 'module']
 Q_SESSIONS = """select %s
  from v$session
@@ -22,9 +18,24 @@ Q_SESSIONS = """select %s
  order by status, sid
 """ % ','.join(Q_FIELDS)
 
+app = bottle.Bottle()
+
 @app.get("/")
 def index_page(oradb):
-    rows = cx_Oracle.Cursor(oradb).execute(Q_SESSIONS % plugin.user).fetchall()
+    rows = oradb.cursor().execute(Q_SESSIONS % plugin.user).fetchall()
     return bottle.template('index', sessions=rows, user=plugin.user, fields=Q_FIELDS)
 
+
+if len(sys.argv) > 1:
+    uri = sys.argv[1]
+    print "used uri:", uri
+    plugin = OraclePlugin(uri)
+else:
+    print 'default uri:', URI
+    plugin = OraclePlugin(URI)
+
+app.install(plugin)
+
 app.run(host="0.0.0.0", port=8082, reloader=True)
+
+# vim: set ts=4 sts=4 sw=4 et :

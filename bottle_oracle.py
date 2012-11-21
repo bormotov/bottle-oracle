@@ -6,7 +6,7 @@ cx_Oracle integration with Bottle framework
 """
 
 __author__ = 'Vladimir Bormotov'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 __license__ = 'BSD'
 
 ### CUT HERE (see setup.py)
