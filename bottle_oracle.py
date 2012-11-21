@@ -44,7 +44,11 @@ class OraclePlugin(object):
         user/password@host:sid[ as ssydba] (port = '1521')
         """
         self.keyword = keyword
-        uuri, tmode = uri.strip().split(' as ')
+        muri = uri.strip().split(' as ')
+        if len(muri) > 1:
+            uuri, tmode = muri[:2]
+        else:
+            uuri, tmode = muri[0], ''
         if tmode.lower() == 'sysdba':
             self.mode = cx_Oracle.SYSDBA
         elif tmode.lower() == 'sysoper':
